@@ -26,11 +26,13 @@ app.use((req, res, next) => {
 const sessionRoutes = require('./routes/sessions');
 const trialRoutes = require('./routes/trials');
 const adminRoutes = require('./routes/admin');
+const experimentRoutes = require('./routes/experimentRoutes');
 
 // ============ 路由使用 ============
 app.use('/api/sessions', sessionRoutes);
 app.use('/api/trials', trialRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/experiment', experimentRoutes);
 
 // ============ 健康检查端点 ============
 app.get('/api/health', (req, res) => {
@@ -58,7 +60,20 @@ app.get('/', (req, res) => {
 // ============ MongoDB连接 ============
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI, {
+    console.log('📍 环境变量检查...');
+    let mongoUri = process.env.MONGODB_URI || '';
+    
+    // 移除可能存在的BOM或特殊字符
+    mongoUri = mongoUri.replace(/^\uFEFF/, '').trim();
+    
+    console.log('MONGODB_URI:', mongoUri ? '已设置' : '未设置');
+    console.log('MONGODB_URI 前20字符:', mongoUri ? mongoUri.substring(0, 20) : 'N/A');
+    console.log('MONGODB_URI 完整长度:', mongoUri.length);
+    
+    if (!mongoUri) {
+      throw new Error('缺少 MONGODB_URI 环境变量，请检查 .env 文件');
+    }
+    await mongoose.connect(mongoUri, {
       useNewUrlParser: true,
       useUnifiedTopology: true
     });
@@ -93,9 +108,6 @@ app.use((err, req, res, next) => {
 
 // ============ 启动服务器 ============
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
 const server = app.listen(PORT, () => {
   console.log(`🚀 服务器运行在 http://localhost:${PORT}`);
   console.log(`环境: ${process.env.NODE_ENV || 'development'}`);
