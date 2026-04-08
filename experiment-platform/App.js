@@ -339,20 +339,37 @@ function App() {
     setQuestionnaireData(data);
 
     const totalDuration = Date.now() - experimentStartTime;
-    const success = await saveDataToBackend({
-      participant_id: participantId,
-      demographics,
-      questionnaire: data,
-      total_duration: totalDuration,
-      completed_at: new Date().toISOString()
-    });
+    
+    try {
+      const response = await fetch(`${API_URL}/api/experiment/save-questionnaire`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          participant_id: participantId,
+          demographics,
+          questionnaire: data,
+          total_duration: totalDuration,
+          completed_at: new Date().toISOString()
+        })
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('问卷保存失败:', error);
+        alert('问卷保存失败，请检查网络后重试。');
+        return;
+      }
+      
+      const result = await response.json();
+      console.log('✅ 问卷已保存到后端:', result.data);
 
-    if (!success) {
+      goToPage('end');
+    } catch (err) {
+      console.error('问卷保存失败:', err.message);
       alert('问卷保存失败，请检查网络后重试。');
-      return;
     }
-
-    goToPage('end');
   };
 
   // 渲染当前页面
