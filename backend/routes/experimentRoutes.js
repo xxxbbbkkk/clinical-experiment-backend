@@ -1,11 +1,13 @@
 /**
  * 实验数据 API 路由
  * POST /api/experiment/save - 保存试次数据
+ * POST /api/experiment/save-questionnaire - 保存问卷和人口统计数据
  */
 
 const express = require('express');
 const router = express.Router();
 const ExperimentData = require('../models/ExperimentData');
+const Participant = require('../models/Participant');
 
 // ============ 保存实验数据 ============
 router.post('/save', async (req, res) => {
@@ -101,6 +103,58 @@ router.get('/participant/:participantId', async (req, res) => {
   } catch (err) {
     console.error('❌ 获取数据失败:', err.message);
     res.status(500).json({ error: '获取数据失败' });
+  }
+});
+
+// ============ 保存问卷和人口统计数据 ============
+router.post('/save-questionnaire', async (req, res) => {
+  try {
+    const { participant_id, demographics, questionnaire, total_duration, completed_at } = req.body;
+
+    if (!participant_id) {
+      return res.status(400).json({ error: '缺少 participant_id' });
+    }
+
+    // 查找或创建参与者记录
+    let participant = await Participant.findOne({ participantId: participant_id });
+    
+    if (participant) {
+      // 更新现有记录
+      if (demographics) participant.demographics = demographics;
+      if (questionnaire) participant.questionnaire = questionnaire;
+      if (total_duration) participant.totalDuration = total_duration;
+      if (completed_at) participant.status = 'completed';
+      await participant.save();
+      console.log(`✅ 问卷数据更新成功: ${participant_id}`);
+    } else {
+      // 创建新记录（如果不存在）
+      participant = new Participant({
+        participantId: participant_id,
+        sessionToken: 'temp-token-' + Date.now(),
+        condition: 'unknown',
+        demographics: demographics || {},
+        questionnaire: questionnaire || {},
+        totalDuration: total_duration || 0,
+        status: 'completed'
+      });
+      await participant.save();
+      console.log(`✅ 问卷数据保存成功: ${participant_id}`);
+    }
+
+    res.status(201).json({
+      message: '问卷数据保存成功',
+      data: {
+        participant_id: participant.participantId,
+        hasQuestionnaire: !!participant.questionnaire
+      }
+    });
+
+  } catch (err) {
+    console.error('❌ 保存问卷失败:', err.message);
+    res.status(500).json({
+      error: '问卷保存失败',
+      details: err.message
+    });
   }
 });
 
