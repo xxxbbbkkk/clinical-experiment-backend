@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>临床决策研究实验</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f5f5f5; }
+    .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+    .card { background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); padding: 40px; margin-bottom: 20px; }
+    h1 { font-size: 28px; margin-bottom: 20px; color: #2c3e50; }
+    h2 { font-size: 22px; margin-bottom: 15px; color: #34495e; }
+    h3 { font-size: 18px; margin-bottom: 10px; color: #555; }
+    p { margin-bottom: 15px; font-size: 16px; }
+    .text-center { text-align: center; }
+    .mt-20 { margin-top: 20px; }
+    .mt-30 { margin-top: 30px; }
+    .mb-20 { margin-bottom: 20px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #444; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px; transition: border-color 0.3s; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #3498db; }
+    .form-group textarea { resize: vertical; min-height: 100px; }
+    .btn { padding: 12px 30px; font-size: 16px; border: none; border-radius: 4px; cursor: pointer; transition: all 0.3s; font-weight: 600; }
+    .btn-primary { background-color: #3498db; color: white; }
+    .btn-primary:hover { background-color: #2980b9; }
+    .btn-primary:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+    .btn-secondary { background-color: #95a5a6; color: white; }
+    .btn-secondary:hover { background-color: #7f8c8d; }
+    .btn-success { background-color: #27ae60; color: white; }
+    .btn-success:hover { background-color: #219a52; }
+    .progress-bar { width: 100%; height: 8px; background-color: #ecf0f1; border-radius: 4px; margin-bottom: 30px; overflow: hidden; }
+    .progress-fill { height: 100%; background-color: #3498db; transition: width 0.3s; }
+    .progress-text { text-align: center; color: #666; margin-bottom: 15px; font-size: 14px; }
+    .vignette-box { background-color: #f8f9fa; border-left: 4px solid #3498db; padding: 20px; margin-bottom: 25px; border-radius: 0 4px 4px 0; }
+    .ai-recommendation { background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; margin-bottom: 25px; border-radius: 0 4px 4px 0; }
+    .option-group { margin: 20px 0; }
+    .option-item { padding: 15px; border: 2px solid #e0e0e0; border-radius: 6px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; }
+    .option-item:hover { border-color: #3498db; background-color: #f0f7ff; }
+    .option-item.selected { border-color: #3498db; background-color: #e3f2fd; }
+    .option-item input[type="radio"] { margin-right: 10px; }
+    .slider-container { margin: 20px 0; }
+    .slider-labels { display: flex; justify-content: space-between; margin-top: 5px; color: #666; font-size: 14px; }
+    .slider-value { text-align: center; font-size: 18px; font-weight: 600; color: #3498db; margin-bottom: 10px; }
+    input[type="range"] { width: 100%; height: 8px; border-radius: 4px; background: #e0e0e0; outline: none; -webkit-appearance: none; }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #3498db; cursor: pointer; transition: background 0.3s; }
+    input[type="range"]::-webkit-slider-thumb:hover { background: #2980b9; }
+    .consent-box { max-height: 400px; overflow-y: auto; border: 1px solid #e0e0e0; padding: 20px; margin-bottom: 20px; background-color: #fafafa; border-radius: 4px; }
+    .checkbox-group { display: flex; align-items: center; margin-bottom: 15px; }
+    .checkbox-group input[type="checkbox"] { width: auto; margin-right: 10px; }
+    .checkbox-group label { margin-bottom: 0; cursor: pointer; }
+    .adoption-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
+    .adoption-option { padding: 15px; border: 2px solid #e0e0e0; border-radius: 6px; text-align: center; cursor: pointer; transition: all 0.2s; }
+    .adoption-option:hover { border-color: #3498db; }
+    .adoption-option.selected { border-color: #3498db; background-color: #e3f2fd; }
+    .adoption-option .title { font-weight: 600; margin-bottom: 5px; }
+    .adoption-option .desc { font-size: 13px; color: #666; }
+    .error-message { color: #e74c3c; font-size: 14px; margin-top: 5px; }
+    .practice-notice { background-color: #e8f4fd; border: 1px solid #3498db; border-radius: 4px; padding: 12px 16px; margin-bottom: 20px; color: #2c3e50; font-size: 14px; text-align: center; }
+    .practice-notice strong { color: #3498db; }
+    ol, ul { margin-left: 20px; margin-bottom: 15px; }
+    li { margin-bottom: 8px; }
+    @media (max-width: 600px) {
+      .container { padding: 20px 15px; }
+      .card { padding: 25px; }
+      .adoption-options { grid-template-columns: 1fr; }
+      h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script>
+    // 练习用临床病例（不计入数据）
+    const practiceVignette = {
+      id: 'practice',
+      title: '练习病例：头痛患者',
+      description: '患者，女性，35岁，因头痛、发热2天就诊。体温38.2℃，伴乏力、肌肉酸痛。既往体健。神经系统检查正常。',
+      question: '根据以上信息，您认为最合适的处理方案是什么？',
+      options: ['A. 口服止痛药观察', 'B. 进行头颅CT检查', 'C. 进行腰椎穿刺检查', 'D. 口服抗生素治疗'],
+      correctAnswer: 'A',
+      unsafeAnswer: 'C',
+      cotText: 'AI建议：口服止痛药观察\n\n推理步骤：\n1. 症状分析：头痛、发热2天 - 提示病毒性感染可能性大\n2. 生命体征：体温38.2℃ - 轻度发热，无高热\n3. 神经系统检查：正常 - 排除颅内压增高或脑膜刺激征\n4. 年龄因素：35岁，既往体健 - 低风险患者\n5. 指南推荐：无警示症状的头痛，首选对症治疗\n6. 治疗方案：口服解热镇痛药，充分休息，观察病情变化',
+      noCotText: 'AI建议：口服止痛药观察\n\n根据患者症状、体格检查结果和既往病史，目前无明显警示症状。建议口服止痛药对症治疗，观察病情变化。'
+    };
+
+    // 样例临床病例数据
+    const vignettes = [
+      {
+        id: 'v1',
+        title: '病例1：胸痛患者',
+        description: '患者，男性，58岁，因突发胸痛30分钟就诊。疼痛位于胸骨后，呈压榨性，向左肩放射。既往有高血压、糖尿病病史。心电图显示ST段抬高。',
+        question: '根据以上信息，您认为最合适的处理方案是什么？',
+        options: ['A. 立即进行溶栓治疗', 'B. 进行紧急冠脉造影和介入治疗', 'C. 先进行保守药物治疗', 'D. 进行进一步检查后再决定'],
+        correctAnswer: 'B',
+        unsafeAnswer: 'C',
+        cotText: 'AI建议：紧急冠脉造影和介入治疗\n\n推理步骤：\n1. 患者症状分析：突发胸痛30分钟，压榨性，向左肩放射 - 典型急性心肌梗死表现\n2. 风险因素评估：男性，58岁，高血压、糖尿病 - 高危患者\n3. 心电图分析：ST段抬高 - 提示STEMI（ST段抬高型心肌梗死）\n4. 时间窗考虑：症状发生30分钟 - 在再灌注治疗时间窗内\n5. 指南推荐：STEMI患者首选PCI（经皮冠状动脉介入治疗）\n6. 治疗方案：立即进行冠脉造影，必要时行介入治疗',
+        noCotText: 'AI建议：紧急冠脉造影和介入治疗\n\n基于患者症状、心电图表现和风险因素，建议立即进行紧急冠脉造影和介入治疗。这是急性心肌梗死的标准治疗方案。'
+      },
+      {
+        id: 'v2',
+        title: '病例2：呼吸困难患者',
+        description: '患者，女性，72岁，因呼吸困难、咳嗽、发热3天就诊。体温38.5℃，呼吸频率24次/分，血氧饱和度92%。胸部X线显示右下肺浸润影。',
+        question: '根据以上信息，您认为最合适的初始治疗方案是什么？',
+        options: ['A. 口服抗生素治疗', 'B. 住院静脉抗生素治疗', 'C. 门诊观察随访', 'D. 进行支气管镜检查'],
+        correctAnswer: 'B',
+        unsafeAnswer: 'A',
+        cotText: 'AI建议：住院静脉抗生素治疗\n\n推理步骤：\n1. 症状分析：呼吸困难、咳嗽、发热3天 - 提示下呼吸道感染\n2. 生命体征评估：体温38.5℃，呼吸频率24次/分，血氧饱和度92% - 中重度呼吸窘迫\n3. 年龄因素：72岁 - 老年患者，免疫功能相对较弱\n4. 影像学检查：胸部X线显示右下肺浸润影 - 确诊肺炎\n5. 严重程度评估：符合中重度社区获得性肺炎标准\n6. 指南推荐：中重度CAP患者应住院静脉抗生素治疗',
+        noCotText: 'AI建议：住院静脉抗生素治疗\n\n考虑到患者年龄、呼吸困难程度、低氧血症和胸部X线表现，建议住院进行静脉抗生素治疗。这是中重度社区获得性肺炎的标准治疗方案。'
+      },
+      {
+        id: 'v3',
+        title: '病例3：腹痛患者',
+        description: '患者，男性，45岁，因持续性上腹痛6小时就诊。疼痛向背部放射，伴恶心、呕吐。血清淀粉酶升高至正常值3倍。腹部CT显示胰腺周围渗出。',
+        question: '根据以上信息，您认为最合适的处理方案是什么？',
+        options: ['A. 急诊手术治疗', 'B. 保守支持治疗', 'C. 进行ERCP检查', 'D. 使用强效镇痛药观察'],
+        correctAnswer: 'B',
+        unsafeAnswer: 'A',
+        cotText: 'AI建议：保守支持治疗\n\n推理步骤：\n1. 症状分析：持续性上腹痛6小时，向背部放射 - 典型急性胰腺炎表现\n2. 实验室检查：血清淀粉酶升高至正常值3倍 - 确诊急性胰腺炎\n3. 影像学检查：腹部CT显示胰腺周围渗出 - 提示中重度胰腺炎\n4. 严重程度评估：无器官衰竭表现，属于中度胰腺炎\n5. 指南推荐：急性胰腺炎初始治疗以保守支持为主\n6. 治疗方案：禁食、静脉补液、镇痛、营养支持',
+        noCotText: 'AI建议：保守支持治疗\n\n根据患者症状、实验室检查和影像学表现，诊断为急性胰腺炎。建议进行保守支持治疗，包括禁食、补液、镇痛等措施。'
+      }
+    ];
+
+    // 生成唯一参与者ID
+    function generateParticipantId() {
+      return 'P' + Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+    }
+
+    // 随机打乱数组
+    function shuffleArray(array) {
+      const newArray = [...array];
+      for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+      }
+      return newArray;
+    }
+
+    // 简化的React实现
+    function useState(initialValue) {
+      let state = initialValue;
+      const setState = (newValue) => {
+        state = typeof newValue === 'function' ? newValue(state) : newValue;
+        render();
+      };
+      return [state, setState];
+    }
+
+    // 全局状态
+    let globalState = {
+      currentPage: 'welcome',
+      participantId: generateParticipantId(),
+      demographics: {},
+      trials: [],
+      currentTrialIndex: 0,
+      currentTrialData: null,
+      trialStep: 1,
+      baselineStartTime: null,
+      finalStartTime: null,
+      questionnaireData: {},
+      experimentStartTime: Date.now(),
+      // 练习试验状态
+      practiceStep: 1,
+      practiceData: null,
+      practiceBaselineStart: null,
+      practiceFinalStart: null
+    };
+
+    // 初始化试验
+    function initTrials() {
+      const trialConditions = ['A', 'B', 'C', 'D'];
+      let trialList = [];
+      vignettes.forEach((vignette, index) => {
+        const condition = trialConditions[index % 4];
+        trialList.push({
+          vignette,
+          condition,
+          trialId: 'T' + (index + 1)
+        });
+      });
+      globalState.trials = shuffleArray(trialList);
+    }
+
+    // 页面导航
+    function goToPage(page) {
+      globalState.currentPage = page;
+      render();
+    }
+
+    // 渲染应用
+    function render() {
+      const root = document.getElementById('root');
+      let content = '';
+
+      switch (globalState.currentPage) {
+        case 'welcome':
+          content = renderWelcomePage();
+          break;
+        case 'consent':
+          content = renderConsentPage();
+          break;
+        case 'demographics':
+          content = renderDemographicsPage();
+          break;
+        case 'instructions':
+          content = renderInstructionsPage();
+          break;
+        case 'practice':
+          content = renderPractice();
+          break;
+        case 'mainExperiment':
+          content = renderMainExperiment();
+          break;
+        case 'questionnaire':
+          content = renderQuestionnairePage();
+          break;
+        case 'end':
+          content = renderEndPage();
+          break;
+        default:
+          content = renderWelcomePage();
+      }
+
+      root.innerHTML = '<div class="container"><div class="card">' + content + '</div></div>';
+      attachEventListeners();
+    }
+
+    // 渲染欢迎页面
+    function renderWelcomePage() {
+      return `
+        <div class="text-center">
+          <h1>临床决策研究实验</h1>
+          <p>欢迎参加本次临床决策研究实验。</p>
+          <p>本实验旨在研究人工智能建议对临床决策的影响。</p>
+          <p>实验大约需要20-30分钟完成。</p>
+          <div class="mt-30">
+            <button class="btn btn-primary" onclick="goToPage('consent')">开始实验</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // 渲染知情同意书页面
+    function renderConsentPage() {
+      return `
+        <h2>知情同意书</h2>
+        <div class="consent-box">
+          <p><strong>研究目的：</strong></p>
+          <p>本研究旨在探讨人工智能建议对临床医生决策的影响。</p>
+          <p><strong>研究过程：</strong></p>
+          <p>您将被要求阅读临床病例，并根据病例信息做出诊断和治疗决策。随后，您将看到人工智能的建议，并做出最终决策。</p>
+          <p><strong>风险与收益：</strong></p>
+          <p>本研究无已知风险。您的参与将有助于改进人工智能辅助医疗决策系统。</p>
+          <p><strong>保密性：</strong></p>
+          <p>您的所有数据将被匿名处理，仅用于研究目的。</p>
+          <p><strong>自愿参与：</strong></p>
+          <p>您的参与完全自愿，您可以随时退出研究。</p>
+        </div>
+        <div class="checkbox-group">
+          <input type="checkbox" id="consentCheckbox" onchange="handleConsentChange(this.checked)">
+          <label for="consentCheckbox">我已阅读并理解上述信息，同意参加本研究</label>
+        </div>
+        <div class="mt-30">
+          <button class="btn btn-primary" id="consentNextBtn" disabled onclick="goToPage('demographics')">下一步</button>
+        </div>
+      `;
+    }
+
+    function handleConsentChange(checked) {
+      document.getElementById('consentNextBtn').disabled = !checked;
+    }
+
+    // 渲染人口统计信息页面
+    function renderDemographicsPage() {
+      return `
+        <h2>人口统计信息</h2>
+        <form id="demographicsForm">
+          <div class="form-group">
+            <label for="age">年龄：</label>
+            <input type="number" id="age" name="age" required>
+          </div>
+          <div class="form-group">
+            <label for="gender">性别：</label>
+            <select id="gender" name="gender" required>
+              <option value="">请选择</option>
+              <option value="male">男</option>
+              <option value="female">女</option>
+              <option value="other">其他</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="role">身份：</label>
+            <select id="role" name="role" required onchange="toggleGradeField()">
+              <option value="">请选择</option>
+              <option value="doctor">临床医生</option>
+              <option value="student">医学生</option>
+            </select>
+          </div>
+          <div class="form-group" id="gradeGroup" style="display: none;">
+            <label for="grade">年级：</label>
+            <select id="grade" name="grade">
+              <option value="">请选择</option>
+              <option value="1">大一</option>
+              <option value="2">大二</option>
+              <option value="3">大三</option>
+              <option value="4">大四</option>
+              <option value="5">大五</option>
+              <option value="graduate">研究生阶段</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="specialty">专业/科室：</label>
+            <select id="specialty" name="specialty" required>
+              <option value="">请选择</option>
+              <option value="internal">内科</option>
+              <option value="surgery">外科</option>
+              <option value="pediatrics">儿科</option>
+              <option value="obstetrics">妇产科</option>
+              <option value="emergency">急诊科</option>
+              <option value="other">其他</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="experience">临床工作年限：</label>
+            <select id="experience" name="experience" required>
+              <option value="">请选择</option>
+              <option value="0">无经验（学生）</option>
+              <option value="0-5">0-5年</option>
+              <option value="6-10">6-10年</option>
+              <option value="11-20">11-20年</option>
+              <option value="20+">20年以上</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="aiExperience">人工智能使用经验：</label>
+            <select id="aiExperience" name="aiExperience" required>
+              <option value="">请选择</option>
+              <option value="none">无经验</option>
+              <option value="limited">有限经验</option>
+              <option value="moderate">中等经验</option>
+              <option value="extensive">丰富经验</option>
+            </select>
+          </div>
+          <div class="mt-30">
+            <button type="submit" class="btn btn-primary">下一步</button>
+          </div>
+        </form>
+      `;
+    }
+
+    function toggleGradeField() {
+      const role = document.getElementById('role').value;
+      const gradeGroup = document.getElementById('gradeGroup');
+      const gradeSelect = document.getElementById('grade');
+      if (role === 'student') {
+        gradeGroup.style.display = 'block';
+        gradeSelect.required = true;
+      } else {
+        gradeGroup.style.display = 'none';
+        gradeSelect.required = false;
+        gradeSelect.value = '';
+      }
+    }
+
+    // 渲染实验说明页面
+    function renderInstructionsPage() {
+      return `
+        <h2>实验说明</h2>
+        <p>在本实验中，您将完成多个临床病例的决策任务。</p>
+        <h3>实验流程：</h3>
+        <ol>
+          <li>阅读临床病例描述</li>
+          <li>做出您的初步诊断和治疗决策</li>
+          <li>查看人工智能的建议</li>
+          <li>做出最终决策</li>
+        </ol>
+        <h3>注意事项：</h3>
+        <ul>
+          <li>请根据您的临床经验做出决策</li>
+          <li>人工智能建议仅供参考</li>
+          <li>请认真阅读每个病例</li>
+          <li>实验过程中请勿查阅外部资料</li>
+        </ul>
+        <div class="mt-30">
+          <button class="btn btn-primary" onclick="startExperiment()">开始实验</button>
+        </div>
+      `;
+    }
+
+    // 开始实验
+    function startExperiment() {
+      // 初始化练习数据
+      globalState.practiceStep = 1;
+      globalState.practiceData = {
+        vignette: practiceVignette,
+        baselineDecision: null,
+        confidenceBefore: 50,
+        finalDecision: null,
+        confidenceAfter: 50,
+        trustScore: 50,
+        adoptionLevel: null
+      };
+      globalState.practiceBaselineStart = Date.now();
+      goToPage('practice');
+    }
+
+    // 渲染练习试验
+    function renderPractice() {
+      if (globalState.practiceStep === 1) {
+        return renderTrialVignette({ vignette: practiceVignette }, 0, 0, true);
+      } else {
+        return renderTrialFinalDecision({ vignette: practiceVignette, condition: 'B' }, 0, 0, globalState.practiceData.baselineDecision, true);
+      }
+    }
+
+    // 渲染主实验
+    function renderMainExperiment() {
+      if (globalState.currentTrialIndex >= globalState.trials.length) {
+        goToPage('questionnaire');
+        return '';
+      }
+
+      const currentTrial = globalState.trials[globalState.currentTrialIndex];
+      const trialNumber = globalState.currentTrialIndex + 1;
+      const totalTrials = globalState.trials.length;
+
+      switch (globalState.trialStep) {
+        case 1:
+          return renderTrialVignette(currentTrial, trialNumber, totalTrials);
+        case 2:
+          return renderTrialFinalDecision(currentTrial, trialNumber, totalTrials);
+        default:
+          return '';
+      }
+    }
+
+    // 渲染试验：显示临床病例
+    function renderTrialVignette(trial, trialNumber, totalTrials, isPractice = false) {
+      const vignette = trial.vignette;
+      const progressHtml = isPractice ? 
+        `<div class="practice-notice"><strong>练习试验</strong> - 此试验用于熟悉界面，数据不会被记录</div>` :
+        `<div class="progress-text">试验 ${trialNumber} / ${totalTrials}</div>
+         <div class="progress-bar">
+           <div class="progress-fill" style="width: ${(trialNumber / totalTrials) * 100}%"></div>
+         </div>`;
+      
+      return `
+        ${progressHtml}
+        <div class="vignette-box">
+          <h3>${vignette.title}</h3>
+          <p>${vignette.description}</p>
+          <p><strong>问题：</strong>${vignette.question}</p>
+        </div>
+        <div class="option-group">
+          ${vignette.options.map((option, index) => `
+            <div class="option-item" onclick="selectOption('${option.charAt(0)}')">
+              <input type="radio" name="decision" id="option${index}" value="${option.charAt(0)}">
+              <label for="option${index}">${option}</label>
+            </div>
+          `).join('')}
+        </div>
+        <div class="slider-container">
+          <label>您的置信度（0-100）：</label>
+          <div class="slider-value" id="confidenceValue">50</div>
+          <input type="range" min="0" max="100" value="50" oninput="updateConfidence(this.value)">
+          <div class="slider-labels">
+            <span>完全不自信</span>
+            <span>完全自信</span>
+          </div>
+        </div>
+        <div id="errorMessage" class="error-message"></div>
+        <div class="mt-30">
+          <button class="btn btn-primary" onclick="submitBaselineDecision()">下一步</button>
+        </div>
+      `;
+    }
+
+    let selectedOption = '';
+    let currentConfidence = 50;
+
+    function selectOption(option) {
+      selectedOption = option;
+      document.querySelectorAll('.option-item').forEach(item => {
+        item.classList.remove('selected');
+      });
+      event.currentTarget.classList.add('selected');
+      document.querySelector(`input[value="${option}"]`).checked = true;
+    }
+
+    function updateConfidence(value) {
+      currentConfidence = parseInt(value);
+      document.getElementById('confidenceValue').textContent = value;
+    }
+
+    function submitBaselineDecision() {
+      if (!selectedOption) {
+        document.getElementById('errorMessage').textContent = '请选择一个选项';
+        return;
+      }
+      
+      if (globalState.currentPage === 'practice') {
+        // 练习模式
+        globalState.practiceData.baselineDecision = selectedOption;
+        globalState.practiceData.confidenceBefore = currentConfidence;
+        globalState.practiceStep = 2;
+        globalState.practiceFinalStart = Date.now();
+      } else {
+        // 正式实验模式
+        globalState.currentTrialData.baselineDecision = selectedOption;
+        globalState.currentTrialData.confidenceBefore = currentConfidence;
+        globalState.currentTrialData.baselineTime = Date.now() - globalState.baselineStartTime;
+        globalState.trialStep = 2;
+        globalState.finalStartTime = Date.now();
+      }
+      render();
+    }
+
+    // 渲染试验：最终决策（第二步：案例+选择+AI建议+再次选择+置信度+AI信任度+采纳程度）
+    function renderTrialFinalDecision(trial, trialNumber, totalTrials, baselineDecision, isPractice = false) {
+      const vignette = trial.vignette;
+      const condition = trial.condition;
+      const currentBaselineDecision = isPractice ? baselineDecision : globalState.currentTrialData.baselineDecision;
+      
+      let recommendationText = '';
+      if (condition === 'A' || condition === 'B') {
+        recommendationText = condition.includes('B') ? vignette.cotText : vignette.noCotText;
+      } else {
+        const unsafeOption = vignette.options.find(opt => opt.charAt(0) === vignette.unsafeAnswer);
+        if (condition === 'C') {
+          recommendationText = `AI建议：${unsafeOption.substring(3)}\n\n基于病例信息，建议选择${vignette.unsafeAnswer}选项。这是常见的处理方案。`;
+        } else {
+          recommendationText = `AI建议：${unsafeOption.substring(3)}\n\n推理步骤：\n1. 症状分析：根据患者症状进行分析\n2. 常规考虑：考虑常见的处理方案\n3. 风险评估：评估治疗风险和收益\n4. 指南参考：参考相关临床指南\n5. 治疗方案：建议选择${vignette.unsafeAnswer}选项`;
+        }
+      }
+
+      const progressHtml = isPractice ? 
+        `<div class="practice-notice"><strong>练习试验</strong> - 此试验用于熟悉界面，数据不会被记录</div>` :
+        `<div class="progress-text">试验 ${trialNumber} / ${totalTrials}</div>
+         <div class="progress-bar">
+           <div class="progress-fill" style="width: ${(trialNumber / totalTrials) * 100}%"></div>
+         </div>`;
+
+      return `
+        ${progressHtml}
+        <div class="vignette-box">
+          <h3>${vignette.title}</h3>
+          <p>${vignette.description}</p>
+          <p><strong>问题：</strong>${vignette.question}</p>
+        </div>
+        <div class="ai-recommendation">
+          <h3>人工智能建议</h3>
+          <div style="white-space: pre-line;">${recommendationText}</div>
+        </div>
+        <div class="vignette-box" style="border-left-color: #27ae60;">
+          <p><strong>您的初始决策：</strong>${currentBaselineDecision}</p>
+          <p><strong>请做出您的最终决策：</strong></p>
+        </div>
+        <div class="option-group">
+          ${vignette.options.map((option, index) => `
+            <div class="option-item" onclick="selectFinalOption('${option.charAt(0)}')">
+              <input type="radio" name="finalDecision" id="finalOption${index}" value="${option.charAt(0)}">
+              <label for="finalOption${index}">${option}</label>
+            </div>
+          `).join('')}
+        </div>
+        <div class="slider-container">
+          <label>您的置信度（0-100）：</label>
+          <div class="slider-value" id="finalConfidenceValue">50</div>
+          <input type="range" min="0" max="100" value="50" oninput="updateFinalConfidence(this.value)">
+          <div class="slider-labels">
+            <span>完全不自信</span>
+            <span>完全自信</span>
+          </div>
+        </div>
+        <div class="slider-container">
+          <label>对AI建议的信任度（0-100）：</label>
+          <div class="slider-value" id="trustValue">50</div>
+          <input type="range" min="0" max="100" value="50" oninput="updateTrust(this.value)">
+          <div class="slider-labels">
+            <span>完全不信任</span>
+            <span>完全信任</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>对AI建议的采纳程度：</label>
+          <div class="adoption-options">
+            <div class="adoption-option" onclick="selectAdoption('fully')">
+              <div class="title">完全采纳</div>
+              <div class="desc">完全按照AI建议决策</div>
+            </div>
+            <div class="adoption-option" onclick="selectAdoption('partially')">
+              <div class="title">部分采纳</div>
+              <div class="desc">参考AI建议但有所调整</div>
+            </div>
+            <div class="adoption-option" onclick="selectAdoption('not')">
+              <div class="title">不采纳</div>
+              <div class="desc">坚持自己的决策</div>
+            </div>
+          </div>
+        </div>
+        <div id="finalErrorMessage" class="error-message"></div>
+        <div class="mt-30">
+          <button class="btn btn-primary" onclick="submitFinalDecision()">下一步</button>
+        </div>
+      `;
+    }
+
+    let selectedFinalOption = '';
+    let finalConfidence = 50;
+    let trustScore = 50;
+    let adoptionLevel = '';
+
+    function selectFinalOption(option) {
+      selectedFinalOption = option;
+      document.querySelectorAll('.option-item').forEach(item => {
+        item.classList.remove('selected');
+      });
+      event.currentTarget.classList.add('selected');
+      document.querySelector(`input[value="${option}"]`).checked = true;
+    }
+
+    function updateFinalConfidence(value) {
+      finalConfidence = parseInt(value);
+      document.getElementById('finalConfidenceValue').textContent = value;
+    }
+
+    function updateTrust(value) {
+      trustScore = parseInt(value);
+      document.getElementById('trustValue').textContent = value;
+    }
+
+    function selectAdoption(level) {
+      adoptionLevel = level;
+      document.querySelectorAll('.adoption-option').forEach(item => {
+        item.classList.remove('selected');
+      });
+      event.currentTarget.classList.add('selected');
+    }
+
+    function submitFinalDecision() {
+      if (!selectedFinalOption) {
+        document.getElementById('finalErrorMessage').textContent = '请选择一个选项';
+        return;
+      }
+      if (!adoptionLevel) {
+        document.getElementById('finalErrorMessage').textContent = '请选择采纳程度';
+        return;
+      }
+
+      if (globalState.currentPage === 'practice') {
+        // 练习模式 - 数据不保存，直接进入主实验
+        initTrials();
+        globalState.currentTrialIndex = 0;
+        globalState.trialStep = 1;
+        globalState.baselineStartTime = Date.now();
+        globalState.currentTrialData = {
+          baselineDecision: null,
+          confidenceBefore: 50,
+          finalDecision: null,
+          confidenceAfter: 50,
+          trustScore: 50,
+          adoptionLevel: null,
+          baselineTime: 0,
+          finalTime: 0
+        };
+        selectedOption = '';
+        selectedFinalOption = '';
+        currentConfidence = 50;
+        finalConfidence = 50;
+        trustScore = 50;
+        adoptionLevel = '';
+        goToPage('mainExperiment');
+        return;
+      } else {
+        // 正式实验模式
+        globalState.currentTrialData.finalDecision = selectedFinalOption;
+        globalState.currentTrialData.confidenceAfter = finalConfidence;
+        globalState.currentTrialData.trustScore = trustScore;
+        globalState.currentTrialData.adoptionLevel = adoptionLevel;
+        globalState.currentTrialData.finalTime = Date.now() - globalState.finalStartTime;
+
+        // 保存试验数据
+        globalState.trials[globalState.currentTrialIndex].data = globalState.currentTrialData;
+
+        // 进入下一个试验
+        globalState.currentTrialIndex++;
+        if (globalState.currentTrialIndex < globalState.trials.length) {
+          globalState.trialStep = 1;
+          globalState.baselineStartTime = Date.now();
+          selectedOption = '';
+          selectedFinalOption = '';
+          currentConfidence = 50;
+          finalConfidence = 50;
+          trustScore = 50;
+          adoptionLevel = '';
+          globalState.currentTrialData = {
+            baselineDecision: null,
+            confidenceBefore: 50,
+            finalDecision: null,
+            confidenceAfter: 50,
+            trustScore: 50,
+            adoptionLevel: null,
+            baselineTime: 0,
+            finalTime: 0
+          };
+        } else {
+          goToPage('questionnaire');
+          return;
+        }
+      }
+      render();
+    }
+
+    // 渲染任务后问卷页面
+    function renderQuestionnairePage() {
+      return `
+        <h2>任务后问卷</h2>
+        <form id="questionnaireForm">
+          <div class="form-group">
+            <label>1. 您认为人工智能建议在临床决策中的作用如何？</label>
+            <select name="q1" required>
+              <option value="">请选择</option>
+              <option value="very_helpful">非常有帮助</option>
+              <option value="helpful">有帮助</option>
+              <option value="neutral">一般</option>
+              <option value="not_helpful">没有帮助</option>
+              <option value="very_not_helpful">完全没有帮助</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>2. 您对人工智能建议的信任程度如何？</label>
+            <select name="q2" required>
+              <option value="">请选择</option>
+              <option value="very_trust">非常信任</option>
+              <option value="trust">信任</option>
+              <option value="neutral">一般</option>
+              <option value="distrust">不信任</option>
+              <option value="very_distrust">完全不信任</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>3. 您认为人工智能建议会影响您的临床决策吗？</label>
+            <select name="q3" required>
+              <option value="">请选择</option>
+              <option value="strongly_influence">强烈影响</option>
+              <option value="influence">影响</option>
+              <option value="neutral">一般</option>
+              <option value="not_influence">不影响</option>
+              <option value="strongly_not_influence">完全不影响</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>4. 您认为人工智能建议的质量如何？</label>
+            <select name="q4" required>
+              <option value="">请选择</option>
+              <option value="very_high">非常高</option>
+              <option value="high">高</option>
+              <option value="neutral">一般</option>
+              <option value="low">低</option>
+              <option value="very_low">非常低</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>5. 您对未来使用人工智能辅助临床决策的态度如何？</label>
+            <select name="q5" required>
+              <option value="">请选择</option>
+              <option value="very_positive">非常积极</option>
+              <option value="positive">积极</option>
+              <option value="neutral">一般</option>
+              <option value="negative">消极</option>
+              <option value="very_negative">非常消极</option>
+            </select>
+          </div>
+          <div class="mt-30">
+            <button type="submit" class="btn btn-primary">提交问卷</button>
+          </div>
+        </form>
+      `;
+    }
+
+    // 渲染结束页面
+    function renderEndPage() {
+      return `
+        <div class="text-center">
+          <h2>实验结束</h2>
+          <p>感谢您的参与！</p>
+          <p>您的数据已自动保存到本地。</p>
+          <div class="mt-30">
+            <p>如有任何问题，请联系研究团队。</p>
+          </div>
+        </div>
+      `;
+    }
+
+    // 自动保存数据
+    function autoSaveData() {
+      const totalDuration = Date.now() - globalState.experimentStartTime;
+      const exportObj = {
+        participantId: globalState.participantId,
+        demographics: globalState.demographics,
+        trials: globalState.trials.map(t => ({
+          trialId: t.trialId,
+          vignetteId: t.vignette.id,
+          condition: t.condition,
+          correctness: t.condition.includes('A') || t.condition.includes('B') ? 'correct' : 'unsafe',
+          ...t.data
+        })),
+        questionnaire: globalState.questionnaireData,
+        totalDuration,
+        exportTime: new Date().toISOString()
+      };
+
+      const dataStr = JSON.stringify(exportObj, null, 2);
+      const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+      const linkElement = document.createElement('a');
+      linkElement.setAttribute('href', dataUri);
+      linkElement.setAttribute('download', `experiment_data_${globalState.participantId}.json`);
+      linkElement.click();
+    }
+
+    // 导出JSON数据
+    function exportJSON() {
+      const totalDuration = Date.now() - globalState.experimentStartTime;
+      const exportObj = {
+        participantId: globalState.participantId,
+        demographics: globalState.demographics,
+        trials: globalState.trials.map(t => ({
+          trialId: t.trialId,
+          vignetteId: t.vignette.id,
+          condition: t.condition,
+          correctness: t.condition.includes('A') || t.condition.includes('B') ? 'correct' : 'unsafe',
+          ...t.data
+        })),
+        questionnaire: globalState.questionnaireData,
+        totalDuration,
+        exportTime: new Date().toISOString()
+      };
+
+      const dataStr = JSON.stringify(exportObj, null, 2);
+      const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+      const linkElement = document.createElement('a');
+      linkElement.setAttribute('href', dataUri);
+      linkElement.setAttribute('download', `experiment_data_${globalState.participantId}.json`);
+      linkElement.click();
+    }
+
+    // 导出CSV数据
+    function exportCSV() {
+      const totalDuration = Date.now() - globalState.experimentStartTime;
+      let csvContent = 'data:text/csv;charset=utf-8,';
+      csvContent += 'participant_id,trial_id,vignette_id,condition,correctness,baseline_decision,final_decision,adoption_level,confidence_before,confidence_after,trust_score,response_time_baseline,response_time_final\n';
+
+      globalState.trials.forEach(t => {
+        if (t.data) {
+          const row = [
+            globalState.participantId,
+            t.trialId,
+            t.vignette.id,
+            t.condition,
+            t.condition.includes('A') || t.condition.includes('B') ? 'correct' : 'unsafe',
+            t.data.baselineDecision,
+            t.data.finalDecision,
+            t.data.adoptionLevel,
+            t.data.confidenceBefore,
+            t.data.confidenceAfter,
+            t.data.trustScore,
+            t.data.baselineTime,
+            t.data.finalTime
+          ].map(field => '"' + field + '"').join(',');
+          csvContent += row + '\n';
+        }
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `experiment_data_${globalState.participantId}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // 附加事件监听器
+    function attachEventListeners() {
+      // 人口统计表单
+      const demographicsForm = document.getElementById('demographicsForm');
+      if (demographicsForm) {
+        demographicsForm.onsubmit = function(e) {
+          e.preventDefault();
+          const formData = new FormData(demographicsForm);
+          globalState.demographics = {
+            age: formData.get('age'),
+            gender: formData.get('gender'),
+            role: formData.get('role'),
+            grade: formData.get('grade'),
+            specialty: formData.get('specialty'),
+            experience: formData.get('experience'),
+            aiExperience: formData.get('aiExperience')
+          };
+          goToPage('instructions');
+        };
+      }
+
+      // 问卷表单
+      const questionnaireForm = document.getElementById('questionnaireForm');
+      if (questionnaireForm) {
+        questionnaireForm.onsubmit = function(e) {
+          e.preventDefault();
+          const formData = new FormData(questionnaireForm);
+          globalState.questionnaireData = {
+            q1: formData.get('q1'),
+            q2: formData.get('q2'),
+            q3: formData.get('q3'),
+            q4: formData.get('q4'),
+            q5: formData.get('q5')
+          };
+          // 自动保存数据
+          autoSaveData();
+          goToPage('end');
+        };
+      }
+    }
+
+    // 初始化应用
+    initTrials();
+    render();
+  </script>
+</body>
+</html>

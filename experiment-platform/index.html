@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>临床决策研究实验</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="root">加载中...</div>
+  <script type="text/babel" src="App.js"></script>
+  <script>
+    // 检查React是否加载成功
+    if (typeof React === 'undefined') {
+      document.getElementById('root').innerHTML = '<h1>错误：React库加载失败</h1><p>请检查网络连接后刷新页面。</p>';
+    }
+  </script>
+</body>
+</html>
