@@ -325,9 +325,26 @@ function App() {
     });
     
     // 进入下一个试验
-    setCurrentTrialIndex(prev => prev + 1);
-    if (currentTrialIndex + 1 < trials.length) {
-      startTrial();
+    const nextIndex = currentTrialIndex + 1;
+    setCurrentTrialIndex(nextIndex);
+    if (nextIndex < trials.length) {
+      // 延迟一点确保状态更新
+      setTimeout(() => {
+        const trial = trials[nextIndex];
+        setCurrentTrialData({
+          ...trial,
+          baselineDecision: null,
+          confidenceBefore: 50,
+          finalDecision: null,
+          confidenceAfter: 50,
+          trustScore: 50,
+          adoptionLevel: null,
+          baselineTime: 0,
+          finalTime: 0
+        });
+        setTrialStep(1);
+        setBaselineStartTime(Date.now());
+      }, 50);
     } else {
       goToPage('questionnaire');
     }
