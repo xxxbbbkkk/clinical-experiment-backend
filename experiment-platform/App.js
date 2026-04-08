@@ -335,13 +335,26 @@ function App() {
   };
   
   // 提交问卷
-  const submitQuestionnaire = (data) => {
+  const submitQuestionnaire = async (data) => {
     setQuestionnaireData(data);
-    // 自动保存数据
-    setTimeout(() => exportData(), 100);
+
+    const totalDuration = Date.now() - experimentStartTime;
+    const success = await saveDataToBackend({
+      participant_id: participantId,
+      demographics,
+      questionnaire: data,
+      total_duration: totalDuration,
+      completed_at: new Date().toISOString()
+    });
+
+    if (!success) {
+      alert('问卷保存失败，请检查网络后重试。');
+      return;
+    }
+
     goToPage('end');
   };
-  
+
   // 导出数据
   const exportData = () => {
     const totalDuration = Date.now() - experimentStartTime;
@@ -493,7 +506,7 @@ function App() {
         return <QuestionnairePage onSubmit={submitQuestionnaire} />;
       
       case 'end':
-        return <EndPage onExportJSON={exportData} onExportCSV={exportCSV} />;
+        return <EndPage />;
       
       default:
         return <WelcomePage onNext={() => goToPage('consent')} />;
@@ -1097,12 +1110,12 @@ function QuestionnairePage({ onSubmit }) {
 }
 
 // 结束页面组件
-function EndPage({ onExportJSON, onExportCSV }) {
+function EndPage() {
   return (
     <div className="text-center">
       <h2>实验结束</h2>
       <p>感谢您的参与！</p>
-      <p>您的数据已自动保存到本地。</p>
+      <p>您的数据已保存到数据库。</p>
       
       <div className="mt-30">
         <p>如有任何问题，请联系研究团队。</p>
