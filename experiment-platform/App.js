@@ -115,6 +115,35 @@ function generateParticipantId() {
   return 'P' + Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
 }
 
+// ============ 后端 API 配置 ============
+const API_URL = 'https://clinical-experiment-backend.onrender.com';
+
+// 保存数据到后端
+async function saveDataToBackend(data) {
+  try {
+    const response = await fetch(`${API_URL}/api/experiment/save`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      console.error('保存失败:', error);
+      return false;
+    }
+    
+    const result = await response.json();
+    console.log('✅ 数据已保存到后端:', result.data);
+    return true;
+  } catch (err) {
+    console.error('❌ 网络错误:', err.message);
+    return false;
+  }
+}
+
 // 随机打乱数组
 function shuffleArray(array) {
   const newArray = [...array];
@@ -281,6 +310,19 @@ function App() {
       data: finalTrialData
     };
     setTrials(updatedTrials);
+    
+    // 保存到后端
+    saveDataToBackend({
+      participant_id: participantId,
+      vignette_id: currentTrialData.vignette.id,
+      condition: currentTrial.condition,
+      baseline_decision: currentTrialData.baselineDecision,
+      final_decision: decision,
+      adoption_level: adoption,
+      trust_score: trust,
+      baseline_reaction_time: currentTrialData.baselineTime,
+      final_reaction_time: finalTime
+    });
     
     // 进入下一个试验
     setCurrentTrialIndex(prev => prev + 1);
