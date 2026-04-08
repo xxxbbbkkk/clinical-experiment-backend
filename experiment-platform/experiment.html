@@ -786,7 +786,7 @@
         <div class="text-center">
           <h2>实验结束</h2>
           <p>感谢您的参与！</p>
-          <p>您的数据已自动保存到本地。</p>
+          <p>您的数据已保存到数据库。</p>
           <div class="mt-30">
             <p>如有任何问题，请联系研究团队。</p>
           </div>
@@ -916,8 +916,6 @@
             q4: formData.get('q4'),
             q5: formData.get('q5')
           };
-          // 自动保存数据
-          autoSaveData();
           goToPage('end');
         };
       }

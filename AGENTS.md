@@ -1,4 +1,4 @@
-# AGENTS.md - Clinical Decision Research Experiment Platform
+# AGENTS.md - 临床决策研究实验平台
 
 ## 启动
 - **前端**: 浏览器打开 `experiment-platform/index.html`
@@ -7,6 +7,9 @@
 
 ## 项目结构
 - `experiment-platform/` - 前端 (React via CDN)
+  - `index.html` - 联机版
+  - `experiment.html` - 离线版 (内联React，无CDN)
+  - `App.js` - 主应用逻辑
 - `backend/` - Express + MongoDB API
 
 ## 关键约束
@@ -25,6 +28,7 @@ MONGODB_URI, JWT_SECRET, PORT, CORS_ORIGIN, ADMIN_KEY
 - 用户: `Authorization: Bearer {token}`
 - 管理端: `X-Admin-Key` 请求头 (不是Bearer)
 
-## 问卷/病例数据位置
-- 问卷: `App.js` 中 `questionnaire` 对象
-- 临床病例: `App.js` 中 `vignettes` 数组
+## 前端配置
+- API地址在 `App.js:108` 硬编码为 `https://clinical-experiment-backend.onrender.com`
+- 本地测试时需修改为 `http://localhost:5000`
+- 问卷和病例数据均在 `App.js` 中定义
