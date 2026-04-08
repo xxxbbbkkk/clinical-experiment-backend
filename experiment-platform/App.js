@@ -217,8 +217,7 @@ function App() {
       confidenceBefore: 50,
       finalDecision: null,
       confidenceAfter: 50,
-      trustScore: 50,
-      adoptionLevel: null
+      trustScore: 50
     });
     setPracticeStep(1);
     setPracticeBaselineStart(Date.now());
@@ -237,7 +236,7 @@ function App() {
   };
   
   // 记录练习最终决策并进入主实验
-  const recordPracticeFinal = (decision, confidence, trust, adoption) => {
+  const recordPracticeFinal = (decision, confidence, trust) => {
     // 练习数据不保存，直接进入主实验
     goToPage('mainExperiment');
     setCurrentTrialIndex(0);
@@ -259,7 +258,6 @@ function App() {
       finalDecision: null,
       confidenceAfter: 50,
       trustScore: 50,
-      adoptionLevel: null,
       baselineTime: 0,
       finalTime: 0
     });
@@ -281,14 +279,13 @@ function App() {
   };
   
   // 记录最终决策
-  const recordFinalDecision = (decision, confidence, trust, adoption) => {
+  const recordFinalDecision = (decision, confidence, trust) => {
     const finalTime = Date.now() - finalStartTime;
     const finalTrialData = {
       ...currentTrialData,
       finalDecision: decision,
       confidenceAfter: confidence,
       trustScore: trust,
-      adoptionLevel: adoption,
       finalTime
     };
     
@@ -307,7 +304,6 @@ function App() {
       condition: trials[currentTrialIndex].condition,
       baseline_decision: currentTrialData.baselineDecision,
       final_decision: decision,
-      adoption_level: adoption,
       trust_score: trust,
       baseline_reaction_time: currentTrialData.baselineTime,
       final_reaction_time: finalTime
@@ -327,7 +323,6 @@ function App() {
           finalDecision: null,
           confidenceAfter: 50,
           trustScore: 50,
-          adoptionLevel: null,
           baselineTime: 0,
           finalTime: 0
         });
@@ -384,7 +379,7 @@ function App() {
     
     // 创建CSV头
     let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += "participant_id,trial_id,vignette_id,condition,correctness,baseline_decision,final_decision,adoption_level,confidence_before,confidence_after,trust_score,response_time_baseline,response_time_final\n";
+    csvContent += "participant_id,trial_id,vignette_id,condition,correctness,baseline_decision,final_decision,confidence_before,confidence_after,trust_score,response_time_baseline,response_time_final\n";
     
     // 添加每个试验的数据
     trials.forEach(t => {
@@ -397,7 +392,6 @@ function App() {
           t.condition.includes('A') || t.condition.includes('B') ? 'correct' : 'unsafe',
           t.data.baselineDecision,
           t.data.finalDecision,
-          t.data.adoptionLevel,
           t.data.confidenceBefore,
           t.data.confidenceAfter,
           t.data.trustScore,
@@ -866,7 +860,6 @@ function TrialFinalDecisionPage({ vignette, condition, trialNumber, totalTrials,
   const [selectedOption, setSelectedOption] = useState(baselineDecision || '');
   const [confidence, setConfidence] = useState(50);
   const [trust, setTrust] = useState(50);
-  const [adoption, setAdoption] = useState('');
   const [error, setError] = useState('');
   
   // 根据条件确定显示的文本
@@ -888,12 +881,8 @@ function TrialFinalDecisionPage({ vignette, condition, trialNumber, totalTrials,
       setError('请选择一个选项');
       return;
     }
-    if (!adoption) {
-      setError('请选择采纳程度');
-      return;
-    }
     setError('');
-    onNext(selectedOption, confidence, trust, adoption);
+    onNext(selectedOption, confidence, trust);
   };
   
   return (
@@ -974,33 +963,6 @@ function TrialFinalDecisionPage({ vignette, condition, trialNumber, totalTrials,
         <div className="slider-labels">
           <span>完全不信任</span>
           <span>完全信任</span>
-        </div>
-      </div>
-      
-      <div className="form-group">
-        <label>对AI建议的采纳程度：</label>
-        <div className="adoption-options">
-          <div
-            className={`adoption-option ${adoption === 'fully' ? 'selected' : ''}`}
-            onClick={() => setAdoption('fully')}
-          >
-            <div className="title">完全采纳</div>
-            <div className="desc">完全按照AI建议决策</div>
-          </div>
-          <div
-            className={`adoption-option ${adoption === 'partially' ? 'selected' : ''}`}
-            onClick={() => setAdoption('partially')}
-          >
-            <div className="title">部分采纳</div>
-            <div className="desc">参考AI建议但有所调整</div>
-          </div>
-          <div
-            className={`adoption-option ${adoption === 'not' ? 'selected' : ''}`}
-            onClick={() => setAdoption('not')}
-          >
-            <div className="title">不采纳</div>
-            <div className="desc">坚持自己的决策</div>
-          </div>
         </div>
       </div>
       
