@@ -315,7 +315,7 @@ function App() {
     saveDataToBackend({
       participant_id: participantId,
       vignette_id: currentTrialData.vignette.id,
-      condition: currentTrial.condition,
+      condition: trials[currentTrialIndex].condition,
       baseline_decision: currentTrialData.baselineDecision,
       final_decision: decision,
       adoption_level: adoption,
